@@ -36,7 +36,7 @@ export default function LoginPage() {
       // Ensure router operations complete in order
       router.refresh()
       await new Promise(resolve => setTimeout(resolve, 100)) // Give time for session to be established
-      router.push('/')
+      await router.push('/')
     } catch (err) {
       setError("An error occurred during login.")
     }
