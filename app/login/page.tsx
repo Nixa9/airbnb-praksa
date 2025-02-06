@@ -7,7 +7,7 @@ import { Label } from "@/components/ui/label"
 import Link from "next/link"
 import { createClientComponentClient } from '@supabase/auth-helpers-nextjs'
 import { useRouter } from "next/navigation"
-import { useState } from "react"
+import { useState, useEffect } from "react"
 import Image from "next/image"
 import login from "@/public/login.webp"
 
@@ -17,6 +17,13 @@ export default function LoginPage() {
   const [error, setError] = useState<string | null>(null)
   const router = useRouter()
   const supabase = createClientComponentClient()
+  const [isLoggedIn, setIsLoggedIn] = useState(false)
+
+  useEffect(() => {
+    if (isLoggedIn) {
+      router.push('/')
+    }
+  }, [isLoggedIn, router])
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault()
@@ -33,10 +40,11 @@ export default function LoginPage() {
         return
       }
 
-      // Ensure router operations complete in order
-      router.refresh()
-      await new Promise(resolve => setTimeout(resolve, 100)) // Give time for session to be established
-      await router.push('/')
+      // Wait until session is established
+      const session = await supabase.auth.getSession()
+      if (session.data.session) {
+        setIsLoggedIn(true)
+      }
     } catch (err) {
       setError("An error occurred during login.")
     }

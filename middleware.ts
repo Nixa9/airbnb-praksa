@@ -12,19 +12,19 @@ export async function middleware(request: NextRequest) {
     const publicPaths = ['/login', '/register']
     const isPublicPath = publicPaths.includes(request.nextUrl.pathname)
 
-    // Redirect authenticated users away from login/register pages
+    // If the user is authenticated and trying to access public paths, redirect them to the homepage
     if (session && isPublicPath) {
       return NextResponse.redirect(new URL('/', request.url))
     }
 
-    // Redirect unauthenticated users to login except for public paths
+    // If the user is unauthenticated and trying to access private paths, redirect them to login
     if (!session && !isPublicPath) {
       return NextResponse.redirect(new URL('/login', request.url))
     }
 
     return res
-
   } catch (e) {
+    // If session retrieval fails or an error occurs, redirect to login
     return NextResponse.redirect(new URL('/login', request.url))
   }
 }
